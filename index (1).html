@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Build Archive</title>
+<style>
+:root{--pink:#f3a5bd;--cyan:#6fe3d8;--bg:#0a0c1b}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:#fff;font-family:"Helvetica Neue",Inter,Arial,sans-serif}
+#scroll{height:760vh}
+#stage{position:fixed;inset:0;overflow:hidden;background:#101826}
+header{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;justify-content:space-between;align-items:center;padding:12px 20px;font-size:10px;letter-spacing:.02em}
+header b{font-weight:600}
+#dots{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:4px}
+#dots i{width:3px;height:3px;border-radius:50%;background:#fff;opacity:.3}
+#dots i.on{opacity:1}
+.pill{border:1px solid rgba(255,255,255,.55);border-radius:99px;padding:3px 11px;font-size:9px;background:rgba(0,0,0,.25);margin-right:12px}
+.bur{width:12px;height:7px;border-top:1.5px solid #fff;border-bottom:1.5px solid #fff;display:inline-block;vertical-align:middle}
+.layer{position:absolute;inset:0;will-change:transform,opacity}
+#terrain{inset:-12%;background:url(terrain.jpg) 50% 90%/cover no-repeat,radial-gradient(ellipse at 40% 40%,#8a8a60,#3f5242 45%,#1b2736);transform-origin:50% 55%}
+#shade{background:radial-gradient(ellipse at 50% 55%,transparent 45%,rgba(6,10,24,.55) 100%),linear-gradient(180deg,rgba(40,60,90,.28),transparent 45%)}
+#fog{inset:-8%;background:url(fog.jpg) center/cover no-repeat;opacity:0;filter:saturate(.45) brightness(1.08) sepia(.2)}
+#spot{left:50%;top:50%;width:26vw;height:26vw;inset:auto;margin:-13vw 0 0 -13vw;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.55),rgba(255,255,255,.18) 45%,transparent 70%);opacity:0;mix-blend-mode:screen}
+.jet{position:absolute;aspect-ratio:976/1099;background:url(jet.png) center/contain no-repeat;filter:drop-shadow(0 .8vw .9vw rgba(0,0,0,.45));will-change:transform,opacity;opacity:0}
+.jet.fb{background:#2a2f3d;clip-path:polygon(50% 0,100% 85%,82% 95%,62% 78%,50% 100%,38% 78%,18% 95%,0 85%);filter:none}
+.title{position:absolute;left:4.5vw;top:13vh;max-width:13ch;font-weight:500;letter-spacing:-.02em;line-height:1.05;opacity:0;font-size:2.2vw}
+.title.big{font-size:3.1vw;max-width:12ch}
+@media(max-width:700px){.title{font-size:6.2vw}.title.big{font-size:7.6vw}}
+.cap{position:absolute;font-size:max(8px,.7vw);line-height:1.35;max-width:24ch;opacity:0;color:rgba(255,255,255,.85)}
+.cap.r{right:4vw;bottom:7vh}.cap.l{left:4.5vw;bottom:7vh}
+.tag{position:absolute;width:1.9vw;height:.6vw;background:#ffbe1f;opacity:0;min-width:14px;min-height:5px}
+#map{opacity:0;background:radial-gradient(ellipse at 50% 50%,#1c1f3d,#0a0c1b 72%)}
+#grid{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.4) 1px,transparent 1.5px);background-size:2.9vw 2.9vw;background-position:center;-webkit-mask:radial-gradient(ellipse at center,#000 55%,transparent 98%);mask:radial-gradient(ellipse at center,#000 55%,transparent 98%)}
+.scr{position:absolute;width:3vw;height:1px;background:rgba(255,255,255,.45);transform:rotate(-35deg);opacity:0}
+#region{position:absolute;left:50%;top:51%;width:44vw;aspect-ratio:4/3;margin:-16.5vw 0 0 -22vw;opacity:0;will-change:transform,opacity}
+#region svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.poly{fill:rgba(255,255,255,.16);stroke:rgba(255,255,255,.9);stroke-width:1.8;stroke-linejoin:round}
+.glow{position:absolute;width:15%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%)}
+.label{position:absolute;left:19%;top:9%;font-size:max(6px,.5vw);font-weight:700;letter-spacing:.06em;padding:.25vw .7vw;color:#000;white-space:nowrap}
+.dr{position:absolute;width:1.4vw;min-width:11px;aspect-ratio:1;margin:-.7vw 0 0 -.7vw;opacity:0;will-change:transform}
+.dr svg{width:100%;height:100%;display:block}
+.dr .tr{position:absolute;left:50%;top:80%;width:1px;height:16vw;background:linear-gradient(#fff,transparent)}
+.br{position:absolute;width:2vw;height:2vw;border:1.5px solid var(--cyan);opacity:0;font-size:max(6px,.45vw);color:var(--cyan)}
+.br span{position:absolute;white-space:nowrap}
+.br.a{border-right:0;border-bottom:0}.br.b{border-left:0;border-bottom:0}.br.c{border-left:0;border-top:0}.br.d{border-right:0;border-top:0}
+</style>
+</head>
+<body>
+<header><b>My Build Archive</b><div id="dots"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div><span class="pill">Menu</span><span class="bur"></span></div></header>
+<div id="scroll"></div>
+<div id="stage">
+  <div class="layer" id="terrain"></div>
+  <div class="layer" id="shade"></div>
+  <div class="layer" id="fog"></div>
+  <div class="layer" id="spot"></div>
+  <div class="layer" id="tags"></div>
+  <div class="jet" id="j0"></div><div class="jet" id="j1"></div><div class="jet" id="j2"></div>
+  <div class="title big" id="t0">Securing the skies with autonomous intelligence</div>
+  <div class="title" id="t1" style="color:var(--pink)">Understanding the Swarm System</div>
+  <div class="title" id="t2" style="color:var(--pink)">Mission preset</div>
+  <div class="title" id="t3">Real-time detection</div>
+  <div class="title" id="t4" style="color:var(--pink)">Thermal irregularities detected</div>
+  <div class="cap r" id="c0">The first agent in the air, built with the speed, range, and onboard intelligence to search vast areas on its own.</div>
+  <div class="cap r" id="c1">Fully autonomous ISR platform that executes and coordinates without human oversight, scaling drone fleets to cover vast areas.</div>
+  <div class="cap l" id="c2">Real-time detection and classification of tens of thousands of objects across the battlespace.</div>
+  <div class="layer" id="map">
+    <div id="grid"></div>
+    <i class="scr" style="left:46%;top:62%"></i><i class="scr" style="left:63%;top:86%"></i><i class="scr" style="left:36%;top:44%"></i>
+    <div class="title" id="t5" style="color:var(--pink)">Phalanx AI</div>
+    <div class="title" id="t6">Analysis &amp; evaluation</div>
+    <div class="cap l" id="c3">The Delta drones reach the anomaly and confirm active flames on the coordinates area.</div>
+    <div class="cap l" id="c4" style="color:var(--pink)">Equipped with thermal cameras, Delta drones can scan the area, predicting the fire spread.</div>
+    <div id="region">
+      <svg viewBox="0 0 400 300"><path class="poly" d="M30 120 L78 92 L150 78 L198 48 L262 24 L318 38 L352 84 L346 138 L370 176 L322 214 L318 262 L246 284 L186 262 L132 270 L84 236 L48 196 L36 154 Z"/></svg>
+      <i class="glow" style="left:32%;top:42%"></i><i class="glow" style="left:76%;top:31%"></i><i class="glow" style="left:68%;top:72%"></i>
+      <div class="label">ZONE 07</div>
+    </div>
+    <div class="dr" id="d0"><div class="tr"></div><svg viewBox="0 0 20 20"><path d="M10 0 L19 19 L10 14 L1 19Z" fill="#fff"/></svg></div>
+    <div class="dr" id="d1"><div class="tr"></div><svg viewBox="0 0 20 20"><path d="M10 0 L19 19 L10 14 L1 19Z" fill="#fff"/></svg></div>
+    <div class="br a" style="left:55%;top:19%"><span style="left:130%;top:-2px">ALT 120</span></div>
+    <div class="br b" style="left:78%;top:30%"><span style="right:130%;top:-2px">TGT 03</span></div>
+    <div class="br c" style="left:73%;top:66%"><span style="right:130%;bottom:-2px">DLT 02</span></div>
+    <div class="br d" style="left:29%;top:60%"><span style="left:130%;bottom:-2px">DLT 01</span></div>
+  </div>
+</div>
+<script>
+(()=>{
+const $=id=>document.getElementById(id), cl=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+const T0=1.0,T1=9.2; // timeline in "video seconds"
+// keyframe tables: [t, ...values]  (linear between rows)
+const row=(tb,t)=>{if(t<=tb[0][0])return tb[0].slice(1);for(let i=1;i<tb.length;i++)if(t<=tb[i][0]){const a=tb[i-1],b=tb[i],u=(t-a[0])/(b[0]-a[0]);return a.slice(1).map((v,k)=>v+(b[k+1]-v)*u)}return tb[tb.length-1].slice(1)};
+const win=(t,a,b,c,d)=>cl((t-a)/(b-a))*(1-cl((t-c)/(d-c)));
+
+/* terrain camera: [t, tiltX, scale, tx%, ty%, blur, bright, bgY%, fog] */
+const CAM=[[1.0,42,1.9,4,-3,0,1,95,0],[1.4,40,1.85,3,-2,0,1,90,0],[1.8,28,1.7,0,0,0,1.05,82,.05],[2.2,22,1.6,-2,1,0,1.05,76,.08],[2.6,12,1.35,-3,2,0,1,68,0],[3.0,8,1.25,-3,3,0,1,60,0],[3.4,6,1.2,-2,3,0,1,54,0],[3.8,4,1.35,0,3,1.5,1,48,.1],[4.2,0,1.7,2,3,3,.9,42,.35],[4.6,0,1.5,3,2,0,1,36,.08],[5.0,0,1.85,3,1,2,.95,30,.4],[5.4,0,2.6,2,0,6,.9,22,.85],[5.8,0,3,0,0,9,.9,14,.9],[6.2,0,1.8,0,0,0,1.15,8,0],[6.7,0,1.4,0,0,0,1,5,0]];
+/* jets: [t, x%, y%, width vw, rotate deg, opacity] */
+const J=[
+ [[1.0,47,52,31,72,1],[1.4,56,49,31,52,1],[1.8,50,50,29,-6,1],[2.2,55,49,26,5,1],[2.6,50,52,16,0,1],[3.0,50,46,11.5,0,1],[3.4,30,51,11,0,1],[3.8,50,48,17,0,1],[4.2,50,50,21,0,1],[4.6,50,52,12,0,1],[5.0,51,52,10.5,0,1],[5.4,55,93,27,0,1],[5.55,55,100,29,0,.8],[5.8,55,112,30,0,0]],
+ [[2.3,76,29,9,0,0],[2.6,75,28,10,0,1],[3.0,74,26,8.5,0,1],[3.4,70,47,11,0,1],[3.8,88,10,10,0,1],[4.05,92,5,10,0,0]],
+ [[2.3,22,75,9,0,0],[2.6,22,74,10,0,1],[3.0,28,72,9,0,1],[3.4,49,72,11,0,1],[3.8,50,54,14,0,.55],[4.0,50,50,17,0,0]]];
+/* drones: [t, x%, y%, rot, opacity] (map coordinates) */
+const D=[[[7.6,84,4,225,0],[7.9,74,13,225,1],[8.2,55,30,225,1],[8.6,53,40,215,1],[9.0,54,44,205,1]],
+         [[8.0,84,16,225,0],[8.2,60,41,225,1],[8.6,57,47,232,1],[9.0,47,52,268,1]]];
+
+// jet fallback
+const pr=new Image();pr.onerror=()=>document.querySelectorAll('.jet').forEach(j=>j.classList.add('fb'));pr.src='jet.png';
+
+// detection tags
+const tg=$('tags'),tp=[[6,70],[14,52],[26,33],[20,84],[34,60],[43,20],[52,74],[60,43],[67,27],[73,66],[82,35],[90,58],[10,30],[56,88],[80,82],[46,48],[30,12],[88,18],[64,60],[38,78]];
+tp.forEach(([x,y],i)=>{const d=document.createElement('i');d.className='tag';d.style.left=x+'%';d.style.top=y+'%';if(i%3==0)d.style.width='2.6vw';tg.appendChild(d)});
+const tags=[...tg.children];
+
+const E={terrain:$('terrain'),fog:$('fog'),spot:$('spot'),map:$('map'),region:$('region'),
+ j:[0,1,2].map(i=>$('j'+i)),t:[0,1,2,3,4,5,6].map(i=>$('t'+i)),c:[0,1,2,3,4].map(i=>$('c'+i)),
+ g:[...document.querySelectorAll('.glow')],lab:document.querySelector('.label'),
+ d:[$('d0'),$('d1')],br:[...document.querySelectorAll('.br')],scr:[...document.querySelectorAll('.scr')],dots:[...document.querySelectorAll('#dots i')]};
+
+const mix=(a,b,u)=>a.map((v,i)=>Math.round(v+(b[i]-v)*u));
+let target=0,cur=0;const rd=()=>{const m=document.documentElement.scrollHeight-innerHeight;target=m>0?scrollY/m:0};
+addEventListener('scroll',rd,{passive:true});addEventListener('resize',rd);rd();
+
+function render(p){
+ const t=T0+p*(T1-T0);
+ /* camera */
+ const [rx,s,tx,ty,bl,br,by,fg]=row(CAM,t);
+ E.terrain.style.transform=`perspective(1300px) rotateX(${rx}deg) scale(${s}) translate(${tx}%,${ty}%)`;
+ E.terrain.style.backgroundPosition=`50% ${by}%`;
+ E.terrain.style.filter=`blur(${bl}px) brightness(${br}) sepia(.38) hue-rotate(-10deg) saturate(1.15)`;
+ E.fog.style.opacity=fg;E.fog.style.transform=`scale(${1.15+(t-3.8)*.32}) rotate(${(t-4)*3.2}deg)`;
+ const mapO=cl((t-6.3)/.4);E.map.style.opacity=mapO;
+ E.terrain.style.opacity=1-cl((t-6.4)/.3);
+ E.spot.style.opacity=win(t,5.85,6.15,6.3,6.6)*.9;
+
+ /* jets */
+ J.forEach((tb,i)=>{const [x,y,w,r,o]=row(tb,t),j=E.j[i];
+  j.style.left=x+'%';j.style.top=y+'%';j.style.width=w+'vw';
+  j.style.transform=`translate(-50%,-50%) rotate(${r}deg)`;j.style.opacity=o});
+ // tiny detection bracket where the jet leaves (5.8)
+ /* titles + captions */
+ const TW=[win(t,.7,.9,1.5,1.8),win(t,2.75,3.0,3.25,3.4),win(t,3.35,3.5,3.65,3.85),win(t,4.4,4.55,5.1,5.3),win(t,5.55,5.75,6.05,6.25),win(t,6.85,7.05,7.3,7.5),win(t,8.0,8.15,8.7,8.9)];
+ E.t.forEach((e,i)=>{e.style.opacity=TW[i];e.style.transform=`translateY(${(1-TW[i])*14}px)`});
+ const k=cl((t-4.7)/.4);E.t[3].style.color=`rgb(${mix([243,165,189],[255,255,255],k)})`;
+ E.t[6].style.color=`rgb(${mix([255,255,255],[243,165,189],cl((t-8.2)/.4))})`;
+ E.c[0].style.opacity=win(t,.7,.9,1.5,1.8);E.c[1].style.opacity=win(t,2.8,3.0,3.5,3.8);
+ E.c[2].style.opacity=win(t,4.3,4.6,5.2,5.5);E.c[3].style.opacity=win(t,6.6,6.8,7.0,7.2);E.c[4].style.opacity=win(t,8.0,8.2,9.1,9.3);
+ /* tags */
+ tags.forEach((e,i)=>{const o=win(t,4.4+i*.012,4.55+i*.012,4.8,5.0);e.style.opacity=o;e.style.transform=`scale(${.4+.6*o}) translateY(${(1-o)*-8}px)`});
+ /* map */
+ E.scr.forEach((e,i)=>e.style.opacity=win(t,6.45,6.6,6.9,7.1)*.7);
+ const ro=cl((t-6.65)/.2);
+ const sc=t<7.0?.85+.15*ro:1-.08*cl((t-7.4)/1.0);
+ E.region.style.opacity=ro;E.region.style.transform=`scale(${sc}) rotate(${(1-ro)*-5}deg)`;
+ const hot=cl((t-8.3)/.4),c=mix([255,190,30],[255,70,70],hot);
+ E.g.forEach((g,i)=>{const pu=1+Math.sin(t*5+i*2)*.06;g.style.opacity=cl((t-6.7)/.2);g.style.transform=`translate(-50%,-50%) scale(${pu})`;
+  g.style.background=`radial-gradient(circle,#fff 0,rgb(${c}) 20%,rgba(${c},0) 68%)`});
+ E.lab.style.background=`rgb(${c})`;E.lab.style.color=hot>.5?'#fff':'#000';
+ D.forEach((tb,i)=>{const [x,y,r,o]=row(tb,t),d=E.d[i];d.style.left=x+'%';d.style.top=y+'%';d.style.opacity=o;d.style.transform=`rotate(${r}deg)`;
+  d.firstChild.style.opacity=t<8.5?1:Math.max(0,1-(t-8.5)/.4)});
+ E.br.forEach((b,i)=>b.style.opacity=cl((t-8.5-i*.06)/.25));
+ /* progress dots */
+ const idx=t<2.4?0:t<3.7?1:t<5.3?2:t<6.4?3:t<7.7?4:t<8.4?5:6;E.dots.forEach((d,i)=>d.classList.toggle('on',i===idx));
+}
+(function loop(){cur+=(target-cur)*.07;if(Math.abs(target-cur)<.0002)cur=target;render(cur);requestAnimationFrame(loop)})();
+})();
+</script>
+</body>
+</html>
